@@ -22,7 +22,28 @@ async def main():
     TODO: จัดการส่งกลุ่ม Tasks ทำ Concurrency Racing บนเซิร์ฟเวอร์ย่อย Alpha, Beta, Gamma
     และปิดกั้นทรัพยากรตัวที่ค้างคา (pending) ทิ้งทันทีเมื่อมีผู้ชนะ
     """
-    
+    server_names = ["Alpha", "Beta", "Gamma"]
+    tasks = [asyncio.create_task(fetch_stock_price(name)) for name in server_names]
+
+    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+
+    for task in pending:
+        task.cancel()
+
+    winner = done.pop()
+    try:
+        result = winner.result()
+    except Exception as exc:
+        result = f"Error: {exc}"
+
+    print(result)
+
+    for task in pending:
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
 
 if __name__ == "__main__":
     
+ asyncio.run(main())
