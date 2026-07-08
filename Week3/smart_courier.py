@@ -1,2 +1,32 @@
-# Delivery System): นักศึกษาต้องเขียน try...except CancelledError ได้ถูกต้อง 
+import asyncio
+from time import ctime
+
+# Delivery System): นักศึกษาต้องเขียน try...except CancelledError ได้ถูกต้อง
 # และใช้ .get_name(), .cancel(), และ .cancelled() ได้
+
+async def delivery_task(package_id, duration):
+    """Coroutine that simulates a delivery task"""
+    try:
+        print(f"{ctime()} Courier started delivering {package_id}...")
+        await asyncio.sleep(duration)
+        return f"Package {package_id} Delivered!"
+    except asyncio.CancelledError:
+        print(f"{ctime()} Delivery Canceled! Returning package to warehouse.")
+        raise
+
+async def main():
+    task = asyncio.create_task(delivery_task("P001", 5.0), name="Express-Courier")
+
+    await asyncio.sleep(2)
+    print(f"{ctime()} Checking task '{task.get_name()}'. Is it done? {task.done()}")
+    print(f"{ctime()} Taking too long! Canceling the task...")
+
+    task.cancel()
+
+    try:
+        await task
+    except asyncio.CancelledError:
+        print(f"{ctime()} Final verify: Is task officially canceled? {task.cancelled()}")
+
+if __name__ == "__main__":
+    asyncio.run(main())

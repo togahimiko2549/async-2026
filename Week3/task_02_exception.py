@@ -22,3 +22,4 @@ async def main():
         print(f"{ctime()} Task Fail Exception: {type(task_fail.exception()).__name__}") # 
 
 asyncio.run(main())
+
