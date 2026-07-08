@@ -9,7 +9,7 @@ async def fetch_stock_price(server_name: str, delay: float) -> str:
 	"""Simulate fetching stock price from a server after a delay."""
 	await asyncio.sleep(delay)
 	# produce a slightly varying price to look realistic
-	price = 150.0 + random.uniform(-1.5, 1.5)
+	price = 150.0
 	return f"[{server_name}] Price: {price:.1f} USD"
 
 
@@ -34,11 +34,11 @@ async def main():
 		print(f"{ts} Winner Result: {result}")
 
 	# cancel remaining pending tasks to avoid memory leak
-	pending_count = len(pending)
-	for p in pending:
-		p.cancel()
-	# optionally await cancellation to suppress warnings
 	if pending:
+		pending_count = len(pending)
+		for p in pending:
+			p.cancel()
+		# optionally await cancellation to suppress warnings
 		await asyncio.gather(*pending, return_exceptions=True)
 		ts = time.asctime(time.localtime())
 		print(f"{ts} Cleaning up {pending_count} pending tasks...")
