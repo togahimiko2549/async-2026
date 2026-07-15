@@ -10,12 +10,23 @@ async def fetch_stock_price(server_name: str):
     2. ใช้ httpx.AsyncClient() ดึงข้อมูลเพื่อไม่ให้เกิดการ Block สัญญาณ Event Loop
     3. นำข้อมูล JSON (server และ price_usd) มาจัดฟอร์แมตแสดงผล
     """
-    url = f"http://172.16.2.117:8088/price/{server_name}"
+    url = f"http://127.0.0.1:8088/price/{server_name}"
     
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
         data = response.json()
         return f"[{data['server']}] Price: {data['price_usd']} USD"
+    url = f"http://127.0.0.1:8088/price/{server_name}"
+
+    # ใช้ httpx.AsyncClient() ดึงข้อมูลแบบไม่บล็อก Event Loop
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            return f"[{data['server']}] Price: {data['price_usd']} USD"
+    except httpx.HTTPError as exc:
+        return f"[{server_name}] Error: {exc}"
 
 async def main():
     # สร้างกลุ่ม Task เพื่อดึงข้อมูลจากเซิร์ฟเวอร์ทั้ง 3 ตัวพร้อมกัน
