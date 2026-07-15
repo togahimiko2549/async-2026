@@ -4,17 +4,18 @@ import httpx
 from time import ctime
 
 async def fetch_stock_price(server_name: str):
-    url = f"http://127.0.0.1:8088/price/{server_name}"
-
-    # ใช้ httpx.AsyncClient() ดึงข้อมูลแบบไม่บล็อก Event Loop
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
-            response.raise_for_status()
-            data = response.json()
-            return f"[{data['server']}] Price: {data['price_usd']} USD"
-    except httpx.HTTPError as exc:
-        return f"[{server_name}] Error: {exc}"
+    """
+    TODO: Assignment 3 - เขียนฟังก์ชันเชื่อมต่อ Mock Server ผ่านระบบเครือข่าย
+    1. กำหนดเป้าหมายไปที่พอร์ต 8088 ตามสเปกเซิร์ฟเวอร์ของอาจารย์
+    2. ใช้ httpx.AsyncClient() ดึงข้อมูลเพื่อไม่ให้เกิดการ Block สัญญาณ Event Loop
+    3. นำข้อมูล JSON (server และ price_usd) มาจัดฟอร์แมตแสดงผล
+    """
+    url = f"http://172.16.2.117:8088/price/{server_name}"
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url)
+        data = response.json()
+        return f"[{data['server']}] Price: {data['price_usd']} USD"
 
 async def main():
     # สร้างกลุ่ม Task เพื่อดึงข้อมูลจากเซิร์ฟเวอร์ทั้ง 3 ตัวพร้อมกัน
