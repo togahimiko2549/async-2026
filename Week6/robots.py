@@ -5,12 +5,12 @@ import httpx
 # ==========================================
 # 1. Configuration & Constants
 # ==========================================
-STUDENT_ID = "" 
-BASE_URL = ""
+STUDENT_ID = "6710301045" 
+BASE_URL = "http://172.16.2.117:8088/6710301045/monitor"
 
 # กำหนดลำดับชิ้นส่วนและหุ่นยนต์
 PARTS = ["A", "B", "C"]
-ROBOTS = ["robot_1", "robot_2", "robot_3"]
+ROBOTS = ["robot_1", "robot_2", "robot_3", "robot_4"]
 
 # ==========================================
 # 2. Async Functions Development
@@ -19,17 +19,20 @@ ROBOTS = ["robot_1", "robot_2", "robot_3"]
 async def reset_factory(client: httpx.AsyncClient):
     """ส่ง Request เพื่อทำการ Reset สถานะของหุ่นยนต์ทั้งหมดของรหัสนักเรียนนี้"""
     # TODO: เติมโค้ดการส่ง POST request ไปยัง /student/{STUDENT_ID}/reset
+    reset_url = f"/student/{STUDENT_ID}/reset"
     pass
 
 async def grab_part(client: httpx.AsyncClient, robot_id: str, part: str):
     """สั่งให้หุ่นยนต์หยิบชิ้นส่วน 1 ชิ้น"""
     # TODO: เติมโค้ดส่ง POST request ไปยัง /student/{STUDENT_ID}/robot/{robot_id}/grab
     # พร้อมแนบ JSON Payload {"part": part}
+    client.post(grab_part_url, json={"part": part})
     pass
 
 async def run_robot_task(client: httpx.AsyncClient, robot_id: str):
     """สั่งให้หุ่นยนต์ 1 ตัว ทำการหยิบชิ้นส่วน A, B, และ C ตามลำดับ"""
     # TODO: วนลูปหยิบชิ้นส่วนใน PARTS ตามลำดับเรียงกัน (Sequential inside single robot)
+    grab_tasks = [grab_part(client, robot_id, part) for part in PARTS]
     pass
 
 async def main():
@@ -40,7 +43,7 @@ async def main():
         
         start_time = time.time()
         print("Starting Async Robot Operation...")
-        
+        await asyncio.gather(*(run_robot_task(client, robot_id) for robot_id in ROBOTS))
         # TODO: สั่งรัน run_robot_task ของหุ่นยนต์ทั้ง 4 ตัวพร้อมกันโดยใช้ asyncio.gather
         
         elapsed_time = time.time() - start_time
